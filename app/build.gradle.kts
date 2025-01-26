@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.thangoghd.thapcamtv"
+    namespace = "com.httam.thapcamtv"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.thangoghd.thapcamtv"
+        applicationId = "com.httam.thapcamtv"
         minSdk = 24
         targetSdk = 34
         versionCode = 12
@@ -51,10 +51,9 @@ dependencies {
     implementation(libs.material)
     // https://mvnrepository.com/artifact/androidx.tvprovider/tvprovider
     implementation("androidx.tvprovider:tvprovider:1.0.0")
-    // https://mvnrepository.com/artifact/com.google.firebase/firebase-config
-    implementation("com.google.firebase:firebase-config:22.0.1")
     implementation(libs.video)
     // Add Firebase dependencies
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
 }

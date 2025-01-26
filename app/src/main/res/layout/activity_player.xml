@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:background="#000000">
+    android:background="#000000"
+    android:orientation="horizontal">
 
     <!-- Player container with 16:9 aspect ratio -->
     <FrameLayout
@@ -18,8 +18,8 @@
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:use_controller="true"
-            app:show_buffering="when_playing">
+            app:show_buffering="when_playing"
+            app:use_controller="true">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </FrameLayout>
 
     <!-- Comments WebView -->
@@ -60,6 +60,6 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.3"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </LinearLayout>
