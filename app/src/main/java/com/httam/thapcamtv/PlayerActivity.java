@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -242,11 +243,18 @@ public class PlayerActivity extends AppCompatActivity {
 
         // Create MediaSource
         MediaItem mediaItem = MediaItem.fromUri(url);
-        HlsMediaSource hlsMediaSource = new HlsMediaSource.Factory(dataSourceFactory)
-                .setAllowChunklessPreparation(true)
-                .createMediaSource(mediaItem);
+        if (url.toLowerCase().contains(".m3u8")) {
+            HlsMediaSource hlsMediaSource = new HlsMediaSource.Factory(dataSourceFactory)
+                    .setAllowChunklessPreparation(true)
+                    .createMediaSource(mediaItem);
 
-        player.setMediaSource(hlsMediaSource);
+            player.setMediaSource(hlsMediaSource);
+        } else {
+            ProgressiveMediaSource progressiveMediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(mediaItem);
+
+            player.setMediaSource(progressiveMediaSource);
+        }
         player.prepare();
         player.setPlayWhenReady(true);
 

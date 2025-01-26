@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "837255645959",
+    "project_id": "thapcamtv-cc96b",
+    "storage_bucket": "thapcamtv-cc96b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837255645959:android:ed484dbc8204f3dbe1d3a2",
+        "android_client_info": {
+          "package_name": "com.httam.thapcamtv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALJ7Hmi_P1gfm3XWDubJUZIjKxXUBUbjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
