@@ -1,6 +1,7 @@
 package com.httam.thapcamtv.api;
 
 import com.google.gson.JsonObject;
+import com.httam.thapcamtv.models.Provider;
 import com.httam.thapcamtv.response.MatchResponse;
 import com.httam.thapcamtv.response.ReplayLinkResponse;
 import com.httam.thapcamtv.response.ReplayResponse;
@@ -39,4 +40,7 @@ public interface SportApi {
 
     @GET("api/news/thapcam/search/xemlai/{query}")
     Call<ReplayResponse> searchReplaysFromThapcam(@Path("query") String query);
+
+    @GET("providers")
+    Call<Provider> getProviders();
 }

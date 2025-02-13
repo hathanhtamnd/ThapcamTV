@@ -14,6 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static String BASE_URL;
+    public static String ORIGIN_URL;
     private static String SECOND_BASE_URL;
     private static final String GITHUB_API_BASE_URL = "https://api.github.com/";
 
@@ -25,6 +26,7 @@ public class RetrofitClient {
         if (SECOND_BASE_URL == null || BASE_URL == null) {
             SharedPreferences sharedPreferences = Application.context.getSharedPreferences("thapcamtv", Context.MODE_PRIVATE);
             BASE_URL = sharedPreferences.getString("baseUrl", "https://q.thapcamn.xyz/");
+            ORIGIN_URL = sharedPreferences.getString("originUrl", "https://cr7.ldplayer.xyz");
             SECOND_BASE_URL = sharedPreferences.getString("secondaryUrl", "https://api.vebo.xyz/");
         }
         String url = useSecondBaseUrl ? SECOND_BASE_URL : BASE_URL;
@@ -55,10 +57,15 @@ public class RetrofitClient {
         firebaseFirestore.collection("thapcamtv").document("configs").get()
                 .addOnSuccessListener(documentSnapshot -> {
                     String baseUrl = documentSnapshot.getString("baseUrl");
+                    String originUrl = documentSnapshot.getString("originUrl");
                     SharedPreferences sharedPreferences = Application.context.getSharedPreferences("thapcamtv", Context.MODE_PRIVATE);
                     if (baseUrl != null && !baseUrl.isEmpty()) {
                         BASE_URL = baseUrl;
                         sharedPreferences.edit().putString("baseUrl", baseUrl).apply();
+                    }
+                    if (originUrl != null && !originUrl.isEmpty()) {
+                        ORIGIN_URL = originUrl;
+                        sharedPreferences.edit().putString("originUrl", originUrl).apply();
                     }
                     String secondaryUrl = documentSnapshot.getString("secondaryUrl");
                     if (secondaryUrl != null && !secondaryUrl.isEmpty()) {

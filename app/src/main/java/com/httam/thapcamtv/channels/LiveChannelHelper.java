@@ -23,6 +23,8 @@ import com.httam.thapcamtv.PlayerActivity;
 import com.httam.thapcamtv.R;
 import com.httam.thapcamtv.models.Commentator;
 import com.httam.thapcamtv.models.Match;
+import com.httam.thapcamtv.providers.ProgramImageProvider;
+import com.httam.thapcamtv.utils.MatchImageHelper;
 
 import java.util.List;
 
@@ -42,8 +44,6 @@ public class LiveChannelHelper {
     private static final String COLUMN_SEARCHABLE = "searchable";
     private static final String COLUMN_TYPE = "type";
     private static final String COLUMN_LIVE = "live";
-    private static final String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
-    private static final String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
     private static final int TYPE_MOVIE = 0; // TvContractCompat.PreviewPrograms.TYPE_MOVIE
 
     public static boolean isChannelSupported(Context context) {
@@ -152,14 +152,6 @@ public class LiveChannelHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_CHANNEL_ID, channelId);
 
-        // Handle title based on away team availability
-        String title;
-        if (match.getAway() == null) {
-            title = "Giải đấu " + match.getHome().getName();
-        } else {
-            title = match.getHome().getName() + " vs " + match.getAway().getName();
-        }
-
         List<Commentator> commentators = match.getCommentators();
         StringBuilder commentatorsNames = new StringBuilder("BLV: ");
         if (commentators != null && !commentators.isEmpty()) {
@@ -178,11 +170,19 @@ public class LiveChannelHelper {
         } else {
             commentatorsNames.append("Nhà Đài");
         }
-        values.put(COLUMN_TITLE, title);
+        // Get match title
+        String matchTitle = match.getAway() == null ? match.getHome().getName() : match.getHome().getName() + " vs " + match.getAway().getName();
+
+        values.put(COLUMN_TITLE, matchTitle);
         values.put(COLUMN_DESCRIPTION, match.getTournament().getName() + "\n" + commentatorsNames);
         values.put(COLUMN_TYPE, TYPE_MOVIE);
-        values.put(COLUMN_POSTER_ART_URI, match.getTournament().getLogo());
-        values.put(COLUMN_LIVE, 1);
+
+        // Try to find custom image from providers, fallback to tournament logo if not found
+        String imageUrl = MatchImageHelper.findMatchImage(matchTitle, match.getTournament().getLogo());
+        // Convert image URL to content URI that will serve the image in 16:9 ratio
+        Uri imageUri = ProgramImageProvider.buildImageUri(imageUrl);
+        values.put(COLUMN_POSTER_ART_URI, imageUri.toString());
+        values.put(COLUMN_LIVE, 0);
         values.put(COLUMN_INTERNAL_PROVIDER_ID, match.getId());
         values.put(COLUMN_SEARCHABLE, 1);
 
@@ -191,6 +191,7 @@ public class LiveChannelHelper {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("source_type", "live");
         intent.putExtra("is_loading", true);
+        intent.putExtra("show_quality_spinner", true);
         intent.putExtra("match_id", match.getId());
         intent.putExtra("sport_type", match.getSportType());
         intent.putExtra("sync_key", match.getSync() != null ? match.getSync() : match.getId());

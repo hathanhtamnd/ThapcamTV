@@ -125,24 +125,13 @@ public class Match {
         this.commentators = commentators;
     }
 
-    public boolean getLive() {
-        return is_live;
-    }
+    public boolean getLive(){return is_live;}
 
-    public String getTimeInMatch() {
-        return time_str;
-    }
+    public String getTimeInMatch(){return time_str;}
 
-    public void setTimeInMatch(String time_str) {
-        this.time_str = time_str;
-    }
+    public void setTimeInMatch(String time_str){this.time_str = time_str;}
 
-    public String getFrom() {
-        return from;
-    }
+    public String getFrom(){return from;}
 
-    public void setFrom(String from) {
-        this.from = from;
-    }
+    public void setFrom(String from){this.from = from;}
 }
-

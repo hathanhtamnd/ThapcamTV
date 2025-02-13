@@ -44,9 +44,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class LiveFragment extends Fragment {
-    private final Handler refreshHandler = new Handler(Looper.getMainLooper());
-    private final long REFRESH_INTERVAL = 30000;
-    public int focusedPosition = RecyclerView.NO_POSITION;
     private RecyclerView recyclerViewSports;
     private RecyclerView recyclerViewMatches;
     private List<Match> matches; // Store matches for the selected sport
@@ -56,8 +53,11 @@ public class LiveFragment extends Fragment {
     private int currentSportIndex = 0;
     private boolean isInitialLoad = true; // Add a variable to track the first load
     private ImageView backgroundImageView;
+    private final Handler refreshHandler = new Handler(Looper.getMainLooper());
+    private final long REFRESH_INTERVAL = 30000;
     private Runnable refreshRunnable;
-    private final Map<String, List<Match>> matchesCache = new HashMap<>(); // Add cache for matches
+    public int focusedPosition = RecyclerView.NO_POSITION;
+    private Map<String, List<Match>> matchesCache = new HashMap<>(); // Add cache for matches
     private View loadingView; // Add loading view reference
     private List<Match> allMatches; // Store all matches from both APIs
 
@@ -487,6 +487,7 @@ public class LiveFragment extends Fragment {
         intent.putExtra("sport_type", selectedMatch.getSportType());
         intent.putExtra("sync_key", selectedMatch.getSync() != null ? selectedMatch.getSync() : matchId);
         intent.putExtra("from", selectedMatch.getFrom());
+        intent.putExtra("show_quality_spinner", true);
         startActivity(intent);
 
         SportApi api;
@@ -589,6 +590,7 @@ public class LiveFragment extends Fragment {
             Intent intent = new Intent(getContext(), PlayerActivity.class);
             intent.putExtra("stream_url", qualityMap);
             intent.putExtra("source_type", "live");
+            intent.putExtra("show_quality_spinner", true);
             startActivity(intent);
         });
     }

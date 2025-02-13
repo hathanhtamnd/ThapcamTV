@@ -11,8 +11,8 @@ android {
         applicationId = "com.httam.thapcamtv"
         minSdk = 24
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.2.3"
+        versionCode = 14
+        versionName = "1.2.5"
 
     }
 
