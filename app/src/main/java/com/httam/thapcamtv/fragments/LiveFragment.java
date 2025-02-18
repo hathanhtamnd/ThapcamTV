@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,14 +35,17 @@ import com.httam.thapcamtv.models.Match;
 import com.httam.thapcamtv.repositories.RepositoryCallback;
 import com.httam.thapcamtv.repositories.SportRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Call;
-import retrofit2.Response;
 
 public class LiveFragment extends Fragment {
     private RecyclerView recyclerViewSports;
@@ -272,10 +276,8 @@ public class LiveFragment extends Fragment {
     private void updateMatchesRecyclerView() {
         if (matchesAdapter == null) {
             // Initialize matchesAdapter and pass listener to handle onClick event
-            matchesAdapter = new MatchesAdapter(matches, this, matchId -> {
-                // Call the fetchMatchStreamUrl function when the user clicks on a match
-                fetchMatchStreamUrl(matchId);
-            });
+            // Call the fetchMatchStreamUrl function when the user clicks on a match
+            matchesAdapter = new MatchesAdapter(matches, this, this::fetchMatchStreamUrl);
             // Set LayoutManager for recyclerViewMatches
             recyclerViewMatches.setLayoutManager(new GridLayoutManager(getContext(), 3));
             recyclerViewMatches.addItemDecoration(new SpaceItemDecoration(0, 0, 0, 35));
@@ -478,6 +480,37 @@ public class LiveFragment extends Fragment {
                 break;
             }
         }
+        SportApi api;
+        if ("vebo".equals(selectedMatch.getFrom())) {
+            api = ApiManager.getSportApi(true); // vebo.xyz
+        } else {
+            // Default to thapcam.xyz API
+            api = ApiManager.getSportApi(false); // thapcam.xyz
+        }
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+        Request request = new Request.Builder().url("https://watch.thapcam.pro/truc-tiep/fenerbahce-vs-spor-toto-" + matchId).build();
+        okhttp3.Call htmlCall = okHttpClient.newCall(request);
+        boolean isNewThapCam = false;
+        try {
+            Response response = htmlCall.execute();
+            String html = response.body().string();
+            String startText = "const id         = '";
+            String endText = "';";
+            int from = html.indexOf(startText) + startText.length();
+            if (from > startText.length()) {
+                int to = html.indexOf(endText, from);
+                matchId = html.substring(from, to);
+                isNewThapCam = true;
+            }
+            response.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Start PlayerActivity immediately with loading state
         Intent intent = new Intent(getContext(), PlayerActivity.class);
@@ -490,22 +523,24 @@ public class LiveFragment extends Fragment {
         intent.putExtra("show_quality_spinner", true);
         startActivity(intent);
 
-        SportApi api;
+
         Call<JsonObject> call;
 
         if ("vebo".equals(selectedMatch.getFrom())) {
-            api = ApiManager.getSportApi(true); // vebo.xyz
             call = api.getVeboStreamUrl(matchId);
         } else {
             // Default to thapcam.xyz API
-            api = ApiManager.getSportApi(false); // thapcam.xyz
-            call = api.getThapcamStreamUrl(matchId);
+            if (isNewThapCam) {
+                call = api.getThapcamStreamNewUrl(matchId);
+            } else {
+                call = api.getThapcamStreamUrl(matchId);
+            }
         }
 
 
         call.enqueue(new retrofit2.Callback<JsonObject>() {
             @Override
-            public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response) {
+            public void onResponse(Call<JsonObject> call, retrofit2.Response<JsonObject> response) {
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
@@ -540,7 +575,7 @@ public class LiveFragment extends Fragment {
             }
 
             JsonArray playUrls = data.getAsJsonArray("play_urls");
-            if (playUrls == null || playUrls.size() == 0) {
+            if (playUrls == null || playUrls.isEmpty()) {
                 if (!isBackgroundLoad) {
                     requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Trận đấu chưa được phát sóng.", Toast.LENGTH_SHORT).show());
                 }
